@@ -45,7 +45,7 @@ class CityFixtures extends Fixture
     private function cities()
     {
         return [
-            'Kiyv',
+            'Kyiv',
             'London',
             'Madrid'
         ];

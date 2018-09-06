@@ -47,7 +47,12 @@ class WeatherJSONController extends AbstractController
 
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody());
-                $data['url'] = 'https://samples.openweathermap.org/data/2.5/forecast?q=' . $city->getName() . '&appid=' . $appId;
+                $data = [
+                    'weather_data' => $data,
+                    'sys' => [
+                        'url' => 'https://samples.openweathermap.org/data/2.5/forecast?q=' . $city->getName() . '&appid=' . $appId
+                    ]
+                ];
             } else {
 
                 $data = [

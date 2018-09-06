@@ -36,8 +36,6 @@ class WeatherJSONController extends AbstractController
 
         if ($city = $em->getRepository(City::class)->find($cityId)) {
 
-            echo 'https://samples.openweathermap.org/data/2.5/forecast' . $appId . ' ' . $city->getName();
-            exit;
 
             $client = new Client();
             $response = $client->get('https://samples.openweathermap.org/data/2.5/forecast', [

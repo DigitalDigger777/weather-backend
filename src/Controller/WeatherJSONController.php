@@ -125,6 +125,7 @@ class WeatherJSONController extends AbstractController
         $cache = new WeatherCache();
         $cache->setCityId($cityId);
         $cache->setData($data);
+        $cache->setDate(new \DateTime());
         $em->persist($cache);
         $em->flush();
     }

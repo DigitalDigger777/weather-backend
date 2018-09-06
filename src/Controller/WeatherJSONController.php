@@ -50,7 +50,7 @@ class WeatherJSONController extends AbstractController
                 $data = [
                     'weather_data' => $data,
                     'sys' => [
-                        'url' => 'http://api.openweathermap.org/data/2.5/forecast?q=' . $city->getName() . '&appid=' . $appId
+                        'url' => 'api.openweathermap.org/data/2.5/weather?q=' . $city->getName() . '&appid=' . $appId
                     ]
                 ];
             } else {

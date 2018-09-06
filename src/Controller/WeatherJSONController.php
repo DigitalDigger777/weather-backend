@@ -40,7 +40,7 @@ class WeatherJSONController extends AbstractController
             $data = [
                 'weather_data' => $data,
                 'sys' => [
-                    'url' => 'http://api.openweathermap.org/data/2.5/weather?q=' . $city->getName() . '&appid=' . $appId
+                    'url' => ''
                 ]
             ];
         } elseif ($city = $em->getRepository(City::class)->find($cityId)) {

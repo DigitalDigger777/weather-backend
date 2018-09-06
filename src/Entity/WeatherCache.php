@@ -17,6 +17,11 @@ class WeatherCache
     private $id;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $cityId;
+
+    /**
      * @ORM\Column(type="json_array")
      */
     private $data;
@@ -29,6 +34,20 @@ class WeatherCache
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCityId(): ?int
+    {
+        return $this->cityId;
+    }
+
+    public function setCityId($cityId): self
+    {
+        $this->cityId = $cityId;
+        return $this;
     }
 
     public function getData()

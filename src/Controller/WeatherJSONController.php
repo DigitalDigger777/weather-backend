@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\City;
+use App\Entity\WeatherCache;
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,7 +35,15 @@ class WeatherJSONController extends AbstractController
 
         $em = $this->getDoctrine()->getManager();
 
-        if ($city = $em->getRepository(City::class)->find($cityId)) {
+        //try load from cache
+        if ($data = $this->loadFromCache($cityId)) {
+            $data = [
+                'weather_data' => $data,
+                'sys' => [
+                    'url' => 'http://api.openweathermap.org/data/2.5/weather?q=' . $city->getName() . '&appid=' . $appId
+                ]
+            ];
+        } elseif ($city = $em->getRepository(City::class)->find($cityId)) {
 
             $client = new Client();
             $response = $client->get('http://api.openweathermap.org/data/2.5/weather', [
@@ -47,6 +56,10 @@ class WeatherJSONController extends AbstractController
 
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody());
+
+                //store to cache
+                $this->storeToCache($cityId, $data);
+
                 $data = [
                     'weather_data' => $data,
                     'sys' => [
@@ -98,5 +111,56 @@ class WeatherJSONController extends AbstractController
         }, $cities);
 
         return new JsonResponse($citiesArray);
+    }
+
+    /**
+     * Store to cache.
+     *
+     * @param $cityId
+     * @param $data
+     */
+    private function storeToCache($cityId, $data)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $cache = new WeatherCache();
+        $cache->setCityId($cityId);
+        $cache->setData($data);
+        $em->persist($cache);
+        $em->flush();
+    }
+
+    /**
+     * Load from cache.
+     *
+     * @param $cityId
+     * @return bool
+     */
+    private function loadFromCache($cityId)
+    {
+        /**
+         * @var WeatherCache $cache
+         */
+        $em = $this->getDoctrine()->getManager();
+        $cache = $em->getRepository(WeatherCache::class)->find($cityId);
+
+        //check expired time
+        if ($cache) {
+            $currentDate = new \DateTime();
+            $currentTs = $currentDate->getTimestamp();
+            $cacheTs = $cache->getDate()->getTimestamp();
+
+            //if cache have age more of 10 minutes
+            if (($currentTs - $cacheTs)/60 > 10) {
+                $em->remove($cache);
+                $em->flush();
+
+                return false;
+            } else {
+                return $cache->getData();
+            }
+        } else {
+            return false;
+        }
+
     }
 }
